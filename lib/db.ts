@@ -1,10 +1,13 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import { createClient } from '@libsql/client';
 
-const dbPath = path.join(process.cwd(), 'packages.db');
-const db = new Database(dbPath);
+// This connects to your free cloud database instead of your computer
+const db = createClient({
+  url: process.env.TURSO_DATABASE_URL as string,
+  authToken: process.env.TURSO_AUTH_TOKEN as string,
+});
 
-db.exec(`
+// Create the table if it doesn't exist yet
+db.execute(`
   CREATE TABLE IF NOT EXISTS packages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     recipient TEXT NOT NULL,
@@ -13,6 +16,6 @@ db.exec(`
     sent_date TEXT NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
-`);
+`).catch(console.error);
 
 export default db;
