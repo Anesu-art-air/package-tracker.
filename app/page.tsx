@@ -7,14 +7,15 @@ type Package = {
   recipient: string;
   destination: string;
   item: string;
+  waybill: string;
   sent_date: string;
 };
 
 export default function Home() {
   const [packages, setPackages] = useState<Package[]>([]);
-  const [form, setForm] = useState({ recipient: '', destination: '', item: '', sent_date: '' });
+  const [form, setForm] = useState({ recipient: '', destination: '', item: '', waybill: '', sent_date: '' });
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [editForm, setEditForm] = useState({ recipient: '', destination: '', item: '', sent_date: '' });
+  const [editForm, setEditForm] = useState({ recipient: '', destination: '', item: '', waybill: '', sent_date: '' });
 
   const loadPackages = async () => {
     const res = await fetch('/api/packages');
@@ -33,7 +34,7 @@ export default function Home() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
     });
-    setForm({ recipient: '', destination: '', item: '', sent_date: '' });
+    setForm({ recipient: '', destination: '', item: '', waybill: '', sent_date: '' });
     loadPackages();
   };
 
@@ -45,7 +46,7 @@ export default function Home() {
 
   const startEdit = (pkg: Package) => {
     setEditingId(pkg.id);
-    setEditForm({ recipient: pkg.recipient, destination: pkg.destination, item: pkg.item, sent_date: pkg.sent_date });
+    setEditForm({ recipient: pkg.recipient, destination: pkg.destination, item: pkg.item, waybill: pkg.waybill || '', sent_date: pkg.sent_date });
   };
 
   const saveEdit = async (id: number) => {
@@ -63,11 +64,12 @@ export default function Home() {
       <div className="max-w-6xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">📦 Sent Packages Log</h1>
 
-        {/* Form - Removed the Qty input */}
-        <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-8 grid grid-cols-1 md:grid-cols-5 gap-4">
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-8 grid grid-cols-1 md:grid-cols-6 gap-4">
           <input required placeholder="Recipient" className="border p-2 rounded" value={form.recipient} onChange={e => setForm({...form, recipient: e.target.value})} />
           <input required placeholder="Destination" className="border p-2 rounded" value={form.destination} onChange={e => setForm({...form, destination: e.target.value})} />
-          <input required placeholder="e.g. 3x Laptops, 2x Headsets" className="border p-2 rounded" value={form.item} onChange={e => setForm({...form, item: e.target.value})} />
+          <input required placeholder="Item(s)" className="border p-2 rounded" value={form.item} onChange={e => setForm({...form, item: e.target.value})} />
+          <input placeholder="Waybill #" className="border p-2 rounded" value={form.waybill} onChange={e => setForm({...form, waybill: e.target.value})} />
           <input required type="date" className="border p-2 rounded" value={form.sent_date} onChange={e => setForm({...form, sent_date: e.target.value})} />
           <button type="submit" className="bg-green-600 text-white p-2 rounded hover:bg-green-700 font-bold">Add</button>
         </form>
@@ -78,6 +80,7 @@ export default function Home() {
             <thead className="bg-gray-200">
               <tr>
                 <th className="p-3 border-b w-28">Date</th>
+                <th className="p-3 border-b w-32">Waybill #</th>
                 <th className="p-3 border-b w-40">Recipient</th>
                 <th className="p-3 border-b w-40">Destination</th>
                 <th className="p-3 border-b">Item(s)</th>
@@ -91,6 +94,7 @@ export default function Home() {
                     // EDIT MODE
                     <>
                       <td className="p-2 border-b"><input type="date" className="border p-1 rounded w-full" value={editForm.sent_date} onChange={e => setEditForm({...editForm, sent_date: e.target.value})} /></td>
+                      <td className="p-2 border-b"><input className="border p-1 rounded w-full" placeholder="Waybill #" value={editForm.waybill} onChange={e => setEditForm({...editForm, waybill: e.target.value})} /></td>
                       <td className="p-2 border-b"><input className="border p-1 rounded w-full" value={editForm.recipient} onChange={e => setEditForm({...editForm, recipient: e.target.value})} /></td>
                       <td className="p-2 border-b"><input className="border p-1 rounded w-full" value={editForm.destination} onChange={e => setEditForm({...editForm, destination: e.target.value})} /></td>
                       <td className="p-2 border-b"><textarea className="border p-1 rounded w-full" rows={2} value={editForm.item} onChange={e => setEditForm({...editForm, item: e.target.value})} /></td>
@@ -103,6 +107,7 @@ export default function Home() {
                     // VIEW MODE
                     <>
                       <td className="p-3 border-b">{pkg.sent_date}</td>
+                      <td className="p-3 border-b font-mono text-sm break-words">{pkg.waybill}</td>
                       <td className="p-3 border-b font-medium break-words">{pkg.recipient}</td>
                       <td className="p-3 border-b break-words">{pkg.destination}</td>
                       <td className="p-3 border-b whitespace-pre-wrap break-words">{pkg.item}</td>
@@ -116,7 +121,7 @@ export default function Home() {
               ))}
               {packages.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="p-6 text-center text-gray-500">No packages logged yet.</td>
+                  <td colSpan={6} className="p-6 text-center text-gray-500">No packages logged yet.</td>
                 </tr>
               )}
             </tbody>

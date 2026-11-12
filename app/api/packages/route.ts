@@ -9,8 +9,8 @@ export async function GET() {
 export async function POST(request: Request) {
   const body = await request.json();
   await db.execute({
-    sql: 'INSERT INTO packages (recipient, destination, item, quantity, sent_date) VALUES (?, ?, ?, ?, ?)',
-    args: [body.recipient, body.destination, body.item, body.quantity, body.sent_date],
+    sql: 'INSERT INTO packages (recipient, destination, item, waybill, sent_date) VALUES (?, ?, ?, ?, ?)',
+    args: [body.recipient, body.destination, body.item, body.waybill, body.sent_date],
   });
   return NextResponse.json({ success: true });
 }
@@ -18,8 +18,8 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   const body = await request.json();
   await db.execute({
-    sql: 'UPDATE packages SET recipient = ?, destination = ?, item = ?, quantity = ?, sent_date = ? WHERE id = ?',
-    args: [body.recipient, body.destination, body.item, body.quantity, body.sent_date, body.id],
+    sql: 'UPDATE packages SET recipient = ?, destination = ?, item = ?, waybill = ?, sent_date = ? WHERE id = ?',
+    args: [body.recipient, body.destination, body.item, body.waybill, body.sent_date, body.id],
   });
   return NextResponse.json({ success: true });
 }
